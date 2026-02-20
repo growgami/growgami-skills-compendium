@@ -2,20 +2,6 @@
 
 A collection of Claude skills used by the Growgami team.
 
-## Submitting a Skill
-
-Each skill must follow this structure:
-
-```
-skill-name/
-├── README.md     # Description of what the skill does
-└── SKILL.md      # The skill definition itself
-```
-
-- The folder must be named after the skill (e.g. `code-review/`, `summarize-pr/`)
-- `README.md` should describe the skill's purpose and usage
-- `SKILL.md` contains the skill definition
-
 ## Using a Skill
 
 ### Prerequisites
