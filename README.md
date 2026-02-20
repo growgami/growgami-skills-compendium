@@ -1,6 +1,6 @@
 # Claude Skills
 
-Internal staging repo for team-submitted `skills.md` and `tools.md` files before they are published to the public repository.
+A collection of Claude skills used by the Growgami team.
 
 ## Submitting a Skill
 
