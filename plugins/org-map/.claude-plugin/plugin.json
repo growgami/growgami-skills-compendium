@@ -1,8 +1,0 @@
-{
-  "name": "org-map",
-  "description": "Structured organizational ontology builder. Maps processes, decisions, and knowledge flows into YAML that any AI system can consume.",
-  "version": "1.0.0",
-  "author": {
-    "name": "Growgami"
-  }
-}

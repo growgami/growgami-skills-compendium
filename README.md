@@ -1,43 +1,56 @@
 # Growgami Skills
 
-Claude Code skills built from real operational experience. Install individually or browse.
+Claude Code skills built from real operational experience.
 
-## Install from the marketplace
+## Install
 
-```
-/plugin marketplace add growgami/growgami-skills-compendium
-/plugin install org-map
-```
-
-Or grab any skill manually:
+**One skill:**
 
 ```bash
 git clone https://github.com/growgami/growgami-skills-compendium.git
-cp -r growgami-skills-compendium/plugins/org-map/skills/org-map ~/.claude/skills/
+cp -r growgami-skills-compendium/skills/org-map ~/.claude/skills/
+```
+
+**All skills:**
+
+```bash
+git clone https://github.com/growgami/growgami-skills-compendium.git
+cp -r growgami-skills-compendium/skills/* ~/.claude/skills/
+```
+
+**With the install script:**
+
+```bash
+git clone https://github.com/growgami/growgami-skills-compendium.git
+cd growgami-skills-compendium
+./install.sh              # interactive picker
+./install.sh org-map      # specific skill
+./install.sh --all        # everything
 ```
 
 ## Skills
 
-### [/org-map](plugins/org-map/) -- Organizational Intelligence Layer
-
-Guided interview that maps your org into a structured YAML ontology -- processes, decisions, knowledge flows, tribal knowledge, bus factors. The kind of diagnostic a good consultant does in week one, except you keep the artifact and any AI system can consume it.
-
-90 minutes. Five phases. Machine-readable output with honest completeness scores.
-
-### Legacy skills (manual copy)
-
 | Skill | What it does |
 |---|---|
-| [brand-guidelines](claude-skills/claude-skill-batch-1/brand-guidelines/) | Brand color and typography standards |
-| [competitive-ads-extractor](claude-skills/claude-skill-batch-1/competitive-ads-extractor/) | Competitive ad intelligence extraction |
-| [editor](claude-skills/claude-skill-batch-1/editor/) | Content editing |
-| [market-research-reports](claude-skills/claude-skill-batch-1/market-research-reports/) | Market research generation |
-| [skill-creator](claude-skills/claude-skill-batch-1/skill-creator/) | Scaffold new Claude skills |
-| [frontend-design](claude-skills/claude-skill-batch-2/frontend-design/) | Frontend UI/UX design |
-| [icp-sharpness](claude-skills/claude-skill-batch-2/icp-sharpness/) | ICP refinement |
-| [investor-materials](claude-skills/claude-skill-batch-2/investor-materials/) | Investor decks and materials |
-| [lead-research-assistant](claude-skills/claude-skill-batch-2/lead-research-assistant/) | Lead research and qualification |
-| [memory-management](claude-skills/claude-skill-batch-2/memory-management/) | Claude memory management |
-| [neobank-lifecycle-sequence-generator](claude-skills/claude-skill-batch-2/neobank-lifecycle-sequence-generator/) | Neobank lifecycle sequences |
+| [org-map](skills/org-map/) | Map your org's real operating model into a structured YAML ontology |
+| [brand-guidelines](skills/brand-guidelines/) | Brand color and typography standards |
+| [competitive-ads-extractor](skills/competitive-ads-extractor/) | Competitive ad intelligence extraction |
+| [editor](skills/editor/) | Content editing |
+| [frontend-design](skills/frontend-design/) | Frontend UI/UX design |
+| [investor-materials](skills/investor-materials/) | Investor decks and materials |
+| [lead-research-assistant](skills/lead-research-assistant/) | Lead research and qualification |
+| [market-research-reports](skills/market-research-reports/) | Market research generation |
+| [memory-management](skills/memory-management/) | Claude memory management |
+| [neobank-lifecycle-sequence-generator](skills/neobank-lifecycle-sequence-generator/) | Neobank lifecycle sequences |
+| [skill-creator](skills/skill-creator/) | Scaffold new Claude skills |
 
-Legacy skills use manual copy install. They will be migrated to the plugin format over time.
+## Structure
+
+```
+skills/
+  skill-name/
+    SKILL.md        # skill definition (YAML frontmatter + prompt)
+    references/     # optional supporting files
+```
+
+Compatible with vanilla Claude Code (`~/.claude/skills/`) and [skills.ws](https://skills.ws).
