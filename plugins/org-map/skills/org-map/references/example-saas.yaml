@@ -1,0 +1,465 @@
+# Org Ontology: Acme (Example)
+# Captured via /org-map interview — 2026-03-10
+# Interviewee: CTO + Head of Product
+# This is a REALISTIC example, not a template. Your org will look different.
+
+meta:
+  org: Acme
+  domain: B2B SaaS — project management for construction
+  stage: growth
+  headcount: 45
+  captured: "2026-03-10"
+  version: 1
+  completeness:
+    foundation: 0.9
+    processes: 0.7
+    decisions: 0.6
+    knowledge: 0.5
+    constraints: 0.8
+  notes: "Interviewed CTO and Head of Product. Engineering team perspectives inferred, not directly captured. Sales and support processes are thin — need follow-up interviews."
+
+entities:
+  roles:
+    - id: cto
+      title: CTO
+      team: engineering
+      authority:
+        approves: [architecture-decisions, vendor-purchases-over-5k, hiring-engineering]
+        creates: [technical-strategy, system-design-docs]
+        escalates_to: ceo
+      context_needs: [product-roadmap, system-metrics, team-capacity, customer-escalations]
+      tribal_knowledge: "Full history of why the system is architected the way it is. Migration decisions from the MongoDB era."
+      bus_factor_for: [incident-response, infrastructure-decisions]
+
+    - id: head-of-product
+      title: Head of Product
+      team: product
+      authority:
+        approves: [feature-prioritization, roadmap-changes, ux-direction]
+        creates: [prds, roadmap, user-research-plans]
+        escalates_to: ceo
+      context_needs: [customer-feedback, usage-analytics, engineering-capacity, sales-pipeline]
+      tribal_knowledge: "Knows which 3 enterprise customers drive 60% of feature requests. Relationship context with each."
+      bus_factor_for: [feature-prioritization, customer-escalation-product]
+
+    - id: senior-eng
+      title: Senior Engineer (x4)
+      team: engineering
+      authority:
+        approves: [code-reviews, minor-architecture-choices]
+        creates: [code, technical-rfcs, runbooks]
+        escalates_to: cto
+      context_needs: [prd, design-specs, api-contracts, test-requirements]
+      tribal_knowledge: ""
+      bus_factor_for: []
+
+    - id: support-lead
+      title: Support Lead
+      team: support
+      authority:
+        approves: [ticket-escalation, refund-under-500]
+        creates: [bug-reports, feature-requests-from-customers]
+        escalates_to: head-of-product
+      context_needs: [product-changelog, known-issues, customer-tier, account-history]
+      tribal_knowledge: "Knows the workarounds for the top 20 bugs that eng hasn't fixed yet. Customers call her directly."
+      bus_factor_for: [customer-support]
+
+  teams:
+    - id: engineering
+      name: Engineering
+      type: stream-aligned
+      owns: [product-development, infrastructure, ci-cd, incident-response]
+      headcount: 18
+      interacts_with:
+        - team: product
+          mode: collaboration
+          friction: moderate
+          notes: "PRDs often lack technical constraints. Eng discovers feasibility issues mid-sprint."
+        - team: support
+          mode: x-as-a-service
+          friction: high
+          notes: "Bug reports from support lack reproduction steps. Eng asks for more info 70% of the time."
+
+    - id: product
+      name: Product
+      type: stream-aligned
+      owns: [roadmap, user-research, feature-specs, analytics]
+      headcount: 5
+      interacts_with:
+        - team: engineering
+          mode: collaboration
+          friction: moderate
+          notes: "Tension around scope — product wants more, eng wants tighter specs."
+        - team: sales
+          mode: collaboration
+          friction: low
+          notes: "Weekly sync works well. Sales brings customer context, product brings roadmap."
+
+    - id: support
+      name: Customer Support
+      type: stream-aligned
+      owns: [ticket-resolution, customer-onboarding, documentation]
+      headcount: 8
+      interacts_with:
+        - team: engineering
+          mode: x-as-a-service
+          friction: high
+          notes: "Support files bugs in Linear. Eng triages weekly. Support feels unheard. Eng feels interrupted."
+
+    - id: sales
+      name: Sales
+      type: stream-aligned
+      owns: [pipeline, demos, contracts, renewals]
+      headcount: 10
+      interacts_with:
+        - team: product
+          mode: collaboration
+          friction: low
+          notes: ""
+        - team: support
+          mode: facilitating
+          friction: low
+          notes: "Sales hands off to support post-close. Handoff doc exists but is often incomplete."
+
+  systems:
+    - id: linear
+      name: Linear
+      type: project-management
+      used_by: [engineering, product]
+      actions: [create-issue, assign, update-status, comment, link-to-pr]
+      data: [issues, roadmap, sprint-plans]
+      integrations: [github, slack]
+      notes: ""
+
+    - id: github
+      name: GitHub
+      type: code
+      used_by: [engineering]
+      actions: [create-pr, review-pr, merge, deploy-via-actions]
+      data: [source-code, pr-reviews, ci-results, deploy-logs]
+      integrations: [linear, slack, vercel]
+      notes: ""
+
+    - id: slack
+      name: Slack
+      type: communication
+      used_by: [engineering, product, support, sales]
+      actions: [send-message, create-thread, react, huddle]
+      data: [conversations, decisions-in-threads, file-shares]
+      integrations: [linear, github, intercom]
+      notes: "Decisions happen in threads and never get documented elsewhere. Major knowledge sink."
+
+    - id: intercom
+      name: Intercom
+      type: crm
+      used_by: [support, sales]
+      actions: [respond-to-ticket, escalate, tag, create-article]
+      data: [customer-conversations, ticket-history, help-articles]
+      integrations: [slack, linear]
+      notes: "Support-to-engineering escalation goes through Slack, not Intercom-to-Linear integration."
+
+    - id: notion
+      name: Notion
+      type: data
+      used_by: [product, engineering]
+      actions: [create-doc, edit, comment, share]
+      data: [prds, meeting-notes, runbooks, onboarding-docs]
+      integrations: []
+      notes: "Docs over 6 months old are unreliable. No ownership or review cadence."
+
+processes:
+  - id: feature-development
+    name: Feature Development
+    owner: head-of-product
+    trigger:
+      type: request
+      description: "Product decides to build something — from roadmap planning, customer request, or sales pressure"
+    value_chain_position: core
+    frequency: "~3-4 features per sprint (2-week sprints)"
+    typical_duration: "2-6 weeks depending on scope"
+    steps:
+      - actor: head-of-product
+        action: write-prd
+        system: notion
+        output: prd-document
+        duration: "2-5 days"
+        notes: "Quality varies. Large features get thorough PRDs, small ones get a Slack message."
+      - actor: cto
+        action: technical-review
+        system: notion
+        output: feasibility-assessment-comment
+        duration: "1-2 days"
+        notes: "Often verbal, not written. Technical constraints discovered here frequently change scope."
+      - actor: senior-eng
+        action: break-into-tasks
+        system: linear
+        output: sprint-tickets
+        duration: "half day"
+        notes: ""
+      - actor: senior-eng
+        action: implement
+        system: github
+        output: pull-request
+        duration: "3-10 days"
+        notes: ""
+      - actor: senior-eng
+        action: code-review
+        system: github
+        output: approved-pr
+        duration: "1-2 days"
+        notes: "Reviews are thorough for infrastructure, rubber-stamped for UI changes."
+      - actor: senior-eng
+        action: deploy
+        system: github
+        output: production-release
+        duration: "30 minutes"
+        notes: "Automated via GitHub Actions → Vercel. No staging environment for full integration tests."
+    decisions:
+      - id: scope-feasibility
+        point: "technical-review"
+        owner: cto
+        criteria: [engineering-effort, team-capacity, technical-debt-impact, customer-value]
+        options:
+          - label: "Build as specced"
+            next: break-into-tasks
+          - label: "Reduce scope"
+            next: "head-of-product revises PRD"
+          - label: "Defer"
+            next: "Added to backlog with rationale"
+        historical_pattern: "CTO pushes back on ~30% of features. Usually scope reduction, rarely full rejection. Tends to prioritize reliability over speed."
+      - id: deploy-go-nogo
+        point: "deploy"
+        owner: senior-eng
+        criteria: [tests-passing, review-approved, no-known-regressions]
+        options:
+          - label: "Ship it"
+            next: production-release
+          - label: "Hold for fix"
+            next: "back to implement"
+        historical_pattern: "Engineers deploy freely. No formal release process. Has caused 2 incidents in the last quarter."
+    exceptions:
+      - condition: "Urgent customer escalation (enterprise tier)"
+        frequency: "~2x/month"
+        handler: cto
+        override: "Skip PRD. CTO approves directly. Senior eng implements in 1-3 days."
+        documentation: partial
+      - condition: "Cross-team dependency (needs support or sales input)"
+        frequency: "~1x/month"
+        handler: head-of-product
+        override: "Head of product coordinates. Adds 3-5 days. Often stalls."
+        documentation: none
+      - condition: "Technical discovery reveals much higher complexity"
+        frequency: "~1x/sprint"
+        handler: cto
+        override: "CTO and Head of Product renegotiate scope mid-sprint. No formal process — just a Slack thread."
+        documentation: none
+    handoffs:
+      - from: head-of-product
+        to: cto
+        mechanism: "Notion doc link in Slack DM"
+        context_loss: "Technical constraints from previous similar features not referenced"
+      - from: cto
+        to: senior-eng
+        mechanism: "Verbal in standup + Linear ticket"
+        context_loss: "Rationale for technical decisions often not written down"
+    bus_factor: 2
+    last_broke: "2026-02 — feature shipped that broke API backward compatibility. No staging env caught it. Support got 40 tickets in 2 hours."
+    new_hire_gotcha: "There's no staging environment. Your PR goes straight to production after merge. Test locally and be sure."
+
+  - id: incident-response
+    name: Incident Response
+    owner: cto
+    trigger:
+      type: event
+      description: "Monitoring alert, customer report, or engineer notices production issue"
+    value_chain_position: core
+    frequency: "~2-3x/month"
+    typical_duration: "30 min to 6 hours"
+    steps:
+      - actor: senior-eng
+        action: triage
+        system: slack
+        output: severity-assessment
+        duration: "5-15 min"
+        notes: "Whoever sees it first triages. No formal on-call rotation."
+      - actor: senior-eng
+        action: investigate-and-fix
+        system: github
+        output: hotfix-pr
+        duration: "30 min to 4 hours"
+        notes: ""
+      - actor: cto
+        action: postmortem
+        system: notion
+        output: postmortem-doc
+        duration: "2-3 days later"
+        notes: "Postmortems happen for P1s. P2s get a Slack summary. P3s get nothing."
+    decisions:
+      - id: severity-classification
+        point: triage
+        owner: senior-eng
+        criteria: [users-affected, data-at-risk, revenue-impact]
+        options:
+          - label: "P1 — all hands"
+            next: "CTO notified, war room in Slack"
+          - label: "P2 — assigned to individual"
+            next: "One engineer owns the fix"
+          - label: "P3 — ticket created for next sprint"
+            next: "Linear ticket, no immediate action"
+        historical_pattern: "Engineers tend to under-classify. CTO often bumps P2s to P1 when customers are affected."
+    exceptions:
+      - condition: "CTO is unavailable"
+        frequency: "~1x/quarter"
+        handler: senior-eng
+        override: "Most senior engineer available makes the call. Has full deploy access."
+        documentation: none
+    handoffs:
+      - from: support-lead
+        to: senior-eng
+        mechanism: "Slack message in #incidents"
+        context_loss: "Customer impact and business context often missing from initial report"
+    bus_factor: 3
+    last_broke: "2026-01 — database connection pool exhaustion. Took 3 hours because the one person who understood the connection pool config was on vacation."
+    new_hire_gotcha: "There's no on-call rotation. If you see an alert, you own it until someone else takes over."
+
+decisions:
+  - id: architecture-decisions
+    name: Architecture & Technical Direction
+    owner: cto
+    trigger: "New feature requires infrastructure change, or tech debt reaches pain threshold"
+    inputs: [system-metrics, scale-projections, team-expertise, maintenance-burden]
+    criteria:
+      primary: [reliability, maintainability, team-can-operate-it]
+      secondary: [performance, cost, ecosystem-maturity]
+    process: hybrid
+    typical_duration: "1-5 days for significant decisions"
+    output: "Notion doc (informal RFC) or verbal decision in standup"
+    escalation:
+      trigger: "Disagreement between CTO and senior eng, or decision affects multiple teams"
+      to: ceo
+    historical_pattern: "Conservative. Proven tech over cutting-edge. PostgreSQL over NoSQL. Monolith-first. Will tolerate known pain over unknown risk."
+    failure_mode: "Delayed too long on the Vercel migration decision — ran on legacy infra 6 months past the pain point because CTO wanted more data."
+
+  - id: hiring
+    name: Hiring Decisions
+    owner: cto
+    trigger: "Team capacity gap or planned growth"
+    inputs: [headcount-budget, role-requirements, team-composition, pipeline-candidates]
+    criteria:
+      primary: [technical-skill, culture-fit, growth-potential]
+      secondary: [domain-experience, availability, comp-expectations]
+    process: sync-meeting
+    typical_duration: "3-6 weeks pipeline to offer"
+    output: "Offer letter"
+    escalation:
+      trigger: "Above-band compensation or senior+ level"
+      to: ceo
+    historical_pattern: "Hires slowly, fires slowly. Values generalists over specialists. Last 3 hires were referrals."
+    failure_mode: "Hired a specialist DBA who couldn't flex into general backend work. Expensive lesson in over-indexing on one skill."
+
+knowledge:
+  flows:
+    - id: customer-feedback-to-product
+      name: Customer Feedback Loop
+      source: support-lead
+      channel: "Slack #feedback channel + weekly sync"
+      destination: head-of-product
+      frequency: weekly
+      artifact: "Slack thread summary (informal)"
+      gap: "Support filters heavily. Engineering never sees raw customer language. Nuance lost in translation."
+
+    - id: product-to-engineering
+      name: Product → Engineering Handoff
+      source: head-of-product
+      channel: "Notion PRD + Slack discussion"
+      destination: cto
+      frequency: "per-feature"
+      artifact: "PRD document"
+      gap: "Technical constraints from past decisions not referenced in new PRDs. Eng rediscovers the same limitations."
+
+    - id: incident-learnings
+      name: Incident Learnings Distribution
+      source: cto
+      channel: "Notion postmortem + Slack #incidents"
+      destination: engineering
+      frequency: "per-P1-incident"
+      artifact: "Postmortem doc"
+      gap: "Only P1s get postmortems. P2 patterns repeat because nobody tracks them."
+
+  tribal:
+    - area: Database performance tuning
+      holders: [cto]
+      risk: "CTO is the only person who understands the query optimization patterns and index strategy. 3 P1 incidents required this knowledge."
+      documentation: none
+      extraction_difficulty: high
+
+    - area: Legacy customer migration scripts
+      holders: [senior-eng]
+      risk: "One engineer wrote all migration scripts. They're undocumented bash scripts with hardcoded assumptions."
+      documentation: none
+      extraction_difficulty: medium
+
+    - area: Enterprise customer relationship context
+      holders: [head-of-product, support-lead]
+      risk: "Which customers are flight risks, who the champions are, verbal commitments made — none of this is in the CRM."
+      documentation: partial
+      extraction_difficulty: low
+
+  rituals:
+    - name: Daily standup
+      frequency: daily
+      participants: [engineering]
+      purpose: "Surface blockers and coordinate work"
+      effectiveness: medium
+      artifact: ""
+
+    - name: Weekly product-eng sync
+      frequency: weekly
+      participants: [head-of-product, cto, senior-eng]
+      purpose: "Align on priorities and surface conflicts"
+      effectiveness: high
+      artifact: "Notion meeting notes (sporadic)"
+
+    - name: Quarterly planning
+      frequency: quarterly
+      participants: [ceo, cto, head-of-product, head-of-sales]
+      purpose: "Set priorities for next quarter"
+      effectiveness: medium
+      artifact: "Roadmap doc in Notion"
+
+  gaps:
+    - area: Sales-to-support handoff
+      impact: high
+      description: "When a deal closes, support gets the customer with minimal context. Account history, verbal promises, and custom configurations aren't documented."
+      recommended_action: "Create a structured handoff template in the CRM. Require sales to complete before support onboarding begins."
+
+    - area: No staging environment
+      impact: critical
+      description: "All code deploys directly to production. Integration issues are caught by customers, not tests."
+      recommended_action: "Stand up a staging environment. This is the highest-ROI infrastructure investment."
+
+    - area: P2 incident patterns
+      impact: medium
+      description: "P2 incidents don't get postmortems. The same issues recur because nobody tracks patterns below P1."
+      recommended_action: "Add a lightweight P2 retro — even a 3-line Slack summary of what broke, why, and what would prevent it."
+
+constraints:
+  compliance: [SOC2]
+  slas:
+    - process: customer-support
+      metric: first-response-time
+      target: "4 hours"
+      reality: "Usually under 2 hours during business hours. Weekends can hit 12+ hours."
+    - process: incident-response
+      metric: time-to-acknowledge
+      target: "15 minutes for P1"
+      reality: "Depends on who's online. No on-call rotation. Weekend P1s have taken 2+ hours to acknowledge."
+  policies:
+    - id: code-review-required
+      description: "All code changes require at least one PR review before merge"
+      enforced_by: code
+      exceptions: "CTO can merge without review for P1 hotfixes"
+    - id: vendor-approval
+      description: "Tool/vendor purchases over $5,000 require CTO approval"
+      enforced_by: process
+      exceptions: "CEO can override for strategic purchases"
